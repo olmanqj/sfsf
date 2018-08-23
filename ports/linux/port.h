@@ -1,0 +1,8 @@
+#define FILE_READ_ONLY				"r"		
+#define FILE_READ_WRITE				"r+"	
+#define FILE_WRITE_CREATE			"w"		
+#define FILE_READ_WRITE_CREATE			"w+"	
+#define FILE_APPEND				"a"	
+#define FILE_READ_APPEND			"a+"	
+#define FILE_WRITE_NEW				"wx"	
+#define FILE_READ_WRITE_NEW			"w+x"	
