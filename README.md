@@ -77,8 +77,9 @@ The SFSF Services offers a bunch of generic functions and services which can be 
 
 
 The library consists of seven modules or "services" listed as follow:
-|                                           |                               |
-|--------------------------------|-----------------------|	
+
+|	Service       |	API File                              |
+|---------------|-----------------------------------|
 |  Command Service         |	  sfsf_cmd.h         |
 |  Debug Service                |   sfsf_debug.h     |
 |  Housekeeping Service  |   sfsf_hk.h            |
