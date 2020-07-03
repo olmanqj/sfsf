@@ -1,25 +1,40 @@
 /*
 Copyright 2018 olmanqj
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */ 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
+ 
 #include <stdlib.h>
 #include <stdio.h>
 
 // CSP Includes
-#include <csp.h>
-#include <csp_thread.h>
-#include <csp_queue.h>
-#include <csp_semaphore.h>
-#include <csp_malloc.h>
+#include <csp/csp.h>
+#include <csp/arch/csp_thread.h>
+#include <csp/arch/csp_queue.h>
+#include <csp/arch/csp_semaphore.h>
+#include <csp/arch/csp_malloc.h>
 
 
 // Framework Includes
-#include "sfsf.h"
-#include "sfsf_debug.h"
-#include "sfsf_storage.h"
-#include "sfsf_param.h"
+#include <sfsf.h>
+#include <sfsf_debug.h>
+#include <sfsf_storage.h>
+#include <sfsf_param.h>
 
 
 // Task handler
@@ -48,12 +63,12 @@ CSP_DEFINE_TASK( param_service_task )
 		// if debug enable print status
 		#if CONF_PARAM_DEBUG == ENABLE
 		print_debug("PARAM>\tStoring params\n");
-		#endif		
+		#endif
 		 // Try to Open Parameter storage file
 		param_fd = fopen(CONF_PARAM_FILE_NAME, "w+");
-		if (!param_fd) 
+		if (!param_fd)
 		{
-			continue;	// TODO handle error  
+			continue;	// TODO handle error
 		}
 		// Get next param handle
 		for(i = 0; i < param_table_size_v; i++ )
@@ -67,7 +82,7 @@ CSP_DEFINE_TASK( param_service_task )
 			fprintf(param_fd, "%s,%s\n", param_table_p[i].name, param_value_buff);
 		}
 		// Close file
-		fclose(param_fd);		
+		fclose(param_fd);
 	}
 	return CSP_TASK_RETURN;
 }
@@ -81,13 +96,13 @@ int load_param_table(char* file_name)
 	// Bufer to store a line from file
 	char line_buff[CONF_PARAM_NAME_SIZE+CONF_PARAM_MAX_PARAM_SIZE+3]; // Plus the comma separator, the new line char and terminating null-character
 
-	// Check if table already exists, if not impossible to load data from a file 
+	// Check if table already exists, if not impossible to load data from a file
     if(param_table_p ==NULL || param_table_size_v < 1 ) return EXIT_FAILURE;
 	// Try to Open file
-	param_fd = fopen(file_name, "r"); 
+	param_fd = fopen(file_name, "r");
 	if (!param_fd)  return EXIT_FAILURE;
 	// Read line by line
-	while( fgets( line_buff, sizeof(line_buff), param_fd )!= NULL) 
+	while( fgets( line_buff, sizeof(line_buff), param_fd )!= NULL)
 	{
 		// Fin the comma delimiter in line
 		val_p = line_buff;
@@ -99,7 +114,7 @@ int load_param_table(char* file_name)
         // Remove new line char '\n' from buffer (should be the last char)
         if(val_p[strlen(val_p)-1] == '\n') val_p[strlen(val_p)-1] = '\0';
         // Try set value in buff to param
-		str_to_param(param_h, val_p);   
+		str_to_param(param_h, val_p);
     }
     // Close file and fee pointer
     fclose(param_fd);
@@ -117,7 +132,7 @@ int init_param_persistence(void)
 		#endif
 		return EXIT_FAILURE;
 	}
-	// Set Options	
+	// Set Options
 	param_persist_period = CONF_PARAM_PERSIST_PERIOD;
 	//Create param Service Task
 	return csp_thread_create(param_service_task, "PARAM_TASK", CONF_PARAM_TASK_STACK_SIZE, NULL, CONF_PARAM_TASK_PRIORITY, &handle_param_service_task);
@@ -162,7 +177,7 @@ int set_param_table(param_table_t* param_table, uint16_t param_table_size)
 	}
 	#if CONF_PARAM_DEBUG == ENABLE
 	print_debug("PARAM>\tParam Table OK!\n");
-	#endif	
+	#endif
 	return EXIT_SUCCESS;
 }
 
@@ -170,7 +185,7 @@ int set_param_table(param_table_t* param_table, uint16_t param_table_size)
 
 // Search into the table to find param with the name
 // Return the handle of a Parameter
-param_handle_t get_param_handle_by_name( const char * name)	
+param_handle_t get_param_handle_by_name( const char * name)
 {
 	int i;
 	for(i = 0; i < param_table_size_v; i++ )
@@ -178,7 +193,7 @@ param_handle_t get_param_handle_by_name( const char * name)
 		// if same name, found =), return pointer
 		if(strcmp( param_table_p[i].name, name) == 0 ) return &param_table_p[i];
 	}
-	
+
 	// Returns NULL if not found
 	return NULL;
 }
@@ -194,7 +209,7 @@ param_index_t get_param_index( const char * name)				// TODO Make indexes start 
 		// if same name, found =), return pointer
 		if(strcmp( param_table_p[i].name, name) == 0 ) return i;
 	}
-	
+
 	// Returns NULL if not found
 	return -1;
 }
@@ -227,7 +242,7 @@ int set_param_val(param_handle_t param_h, void * in_p)
 
 
 
-// Get the value of a Parameter 
+// Get the value of a Parameter
 int get_param_val(param_handle_t param_h, void * out_p)
 {
 	if (param_h==NULL || param_h->value==NULL || out_p==NULL) return EXIT_FAILURE;
@@ -271,7 +286,7 @@ int param_to_str(param_handle_t param_handle, char* out_buff, int buff_size)
 		case UINT16_PARAM:
 		{
 			uint16_t param_value = 0;
-			get_param_val(param_handle, (void*)&param_value);			
+			get_param_val(param_handle, (void*)&param_value);
 			exit_status = snprintf(out_buff,  buff_size, "%"PRIu16"", param_value);
 			break;
 		}
@@ -284,7 +299,7 @@ int param_to_str(param_handle_t param_handle, char* out_buff, int buff_size)
 		}
 		case UINT32_PARAM:
 		{
-			uint32_t param_value = 0; 
+			uint32_t param_value = 0;
 			get_param_val(param_handle, (void*)&param_value);
 			exit_status = snprintf(out_buff,  buff_size, "%"PRIu32"", param_value);
 			break;
@@ -321,7 +336,7 @@ int param_to_str(param_handle_t param_handle, char* out_buff, int buff_size)
 		{
 			double param_value = 0;
 			get_param_val(param_handle, (void*)&param_value);
-			exit_status = snprintf(out_buff,  buff_size, "%.3lf", param_value);				// TODO fix precision issue 
+			exit_status = snprintf(out_buff,  buff_size, "%.3lf", param_value);				// TODO fix precision issue
 			break;
 		}
 		case STRING_PARAM:
@@ -355,8 +370,8 @@ int str_to_param(param_handle_t param_handle, char* in_buff)
 			uint8_t param_value;
 			// Scan the source buffer for a uint, store the converted value in param_value
 			param_value = (uint8_t) atoi( in_buff );
-			// Set  param_value to the desired parameter 
-			set_param_val(param_handle, (void*)&param_value);	
+			// Set  param_value to the desired parameter
+			set_param_val(param_handle, (void*)&param_value);
 			break;
 		}
 		case INT8_PARAM:
@@ -370,7 +385,7 @@ int str_to_param(param_handle_t param_handle, char* in_buff)
 		{
 			uint16_t param_value;
 			param_value = (uint16_t) atoi( in_buff );
-			set_param_val(param_handle, (void*)&param_value);			
+			set_param_val(param_handle, (void*)&param_value);
 			break;
 		}
 		case INT16_PARAM:
@@ -398,28 +413,28 @@ int str_to_param(param_handle_t param_handle, char* in_buff)
 		{
 			uint64_t param_value;
 			param_value = (uint64_t) atol( in_buff );
-			set_param_val(param_handle, (void*)&param_value);			
+			set_param_val(param_handle, (void*)&param_value);
 			break;
 		}
 		case INT64_PARAM:
 		{
 			int64_t param_value;
 			param_value = (int64_t) atol( in_buff );
-			set_param_val(param_handle, (void*)&param_value);			
+			set_param_val(param_handle, (void*)&param_value);
 			break;
 		}
 		case FLOAT_PARAM:
 		{
 			float param_value;
 			param_value = (float) atof( in_buff );
-			set_param_val(param_handle, (void*)&param_value);			
+			set_param_val(param_handle, (void*)&param_value);
 			break;
 		}
 		case DOUBLE_PARAM:
 		{
 			double param_value;
 			param_value = (double) atof( in_buff );
-			set_param_val(param_handle, (void*)&param_value);			
+			set_param_val(param_handle, (void*)&param_value);
 			break;
 		}
 		case STRING_PARAM:
@@ -463,7 +478,7 @@ void get_tag(int id, char* dest_buff, int buff_size)								// TODO fix issue, g
 		// Invert position on index
 		dest_buff[i] = aux_buffer[buff_index];
 	}
-	
+
 	return;
 }
 
@@ -488,7 +503,7 @@ void collect_telemetry_params(char * dest_buff, size_t buff_size)
 		get_tag(tag_id, tag_buff, sizeof(tag_buff));
 		// Store the value from param as str
 		param_to_str(&param_table_p[i], param_buff, sizeof(param_buff));
-		// Check if enough space in dest_buff (enough for tag + param + ':' + ',') 
+		// Check if enough space in dest_buff (enough for tag + param + ':' + ',')
 		if(strlen(dest_buff)+strlen(tag_buff)+strlen(param_buff)+2 >= buff_size) break;
 		// Separate by comma, except if first
 		if(strlen(dest_buff) != 0) strcat(dest_buff,   "," );
@@ -528,7 +543,7 @@ int collect_telemtry_header(char * dest_buff, int buff_size)
 		get_tag(tag_id, tag_buff, sizeof(tag_buff));
 		// Store the value from param as str
 		param_to_str(&param_table_p[i], name_buff, sizeof(name_buff));
-		// Check if enough space in dest_buff (enough for tag + param + ':' + ',') 
+		// Check if enough space in dest_buff (enough for tag + param + ':' + ',')
 		if(strlen(dest_buff)+strlen(tag_buff)+strlen(name_buff)+2 >= buff_size) break;
 		// Separate by comma, except if first
 		if(strlen(dest_buff) != 0) strcat(dest_buff,   "," );

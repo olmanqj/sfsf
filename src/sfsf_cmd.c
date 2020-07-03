@@ -1,20 +1,34 @@
 /*
 Copyright 2018 olmanqj
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */ 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
 #include <stdlib.h>
 
 // CSP Includes
-#include <csp.h>
-#include <csp_thread.h>
-#include <csp_queue.h>
+#include <csp/csp.h>
+#include <csp/arch/csp_thread.h>
+#include <csp/arch/csp_queue.h>
 
 // Framework Includes
-#include "sfsf.h"
-#include "sfsf_debug.h"
-#include "sfsf_cmd.h"
+#include <sfsf.h>
+#include <sfsf_debug.h>
+#include <sfsf_cmd.h>
 
 // The argument list size for command routines = size of CSP buffer - command header (2 bytes)
 #define CONF_CMD_ARG_LIST_SIZE CONF_CSP_BUFF_SIZE-2
@@ -41,13 +55,13 @@ CSP_DEFINE_TASK( cmd_service_task )
 {
 	while(1)
 	{
-		csp_sleep_ms(event_chech_period);	
+		csp_sleep_ms(event_chech_period);
 
 		#if CONF_CMD_DEBUG == ENABLE
 		print_debug("CMD>\tChecking Cmd Queue\n");
 		#endif
 	}
-	return CSP_TASK_RETURN;	
+	return CSP_TASK_RETURN;
 }
 
 
@@ -76,14 +90,14 @@ int set_cmd_table(cmd_table_t * cmd_table, uint16_t cmd_table_size)
 	if(cmd_table == NULL || cmd_table_size < 1 ) return EXIT_FAILURE;
 	// Set init params
 	cmd_table_p = (cmd_handle_t*) cmd_table;
-	cmd_table_size_v = cmd_table_size; 
+	cmd_table_size_v = cmd_table_size;
 	#if CONF_CMD_DEBUG == ENABLE
 	print_debug("CMD>\tCommand Table OK!\n");
 	#endif
 	return EXIT_SUCCESS;
 }
 
-// Count amount of comma separated values (tokens) in a string 
+// Count amount of comma separated values (tokens) in a string
 int	count_csv(char * str_buff)
 {
 	int token_count = 0;	// To count how many tokens in string
@@ -96,7 +110,7 @@ int	count_csv(char * str_buff)
 		token_p += token_len;
 		// If current token has at least one byte it is a valid token
 		if(0 < token_len ) token_count++;
-	// Repeat for the whole string, i.e. while next char is not end of str 
+	// Repeat for the whole string, i.e. while next char is not end of str
 	} while (*token_p++);
 	// Return the count
 	return token_count;
@@ -115,7 +129,7 @@ int get_next_arg(cmd_packet_t* cmd_packet, char * out_buff)
 		token_len = strcspn(cmd_packet->cmd_next_arg_p, CONF_CMD_ARGS_DELIMITERS);
 		// If current token has at least one byte it is a valid argument
 		if(0 < token_len ) break;
-	// Repeat until find a token or is not end of str 
+	// Repeat until find a token or is not end of str
 	} while (*cmd_packet->cmd_next_arg_p++);
 	// Check out_buff is enough big
 	if (token_len > strlen(out_buff)) EXIT_FAILURE;
@@ -133,12 +147,12 @@ int get_next_arg(cmd_packet_t* cmd_packet, char * out_buff)
 // Reset next argument pointer, in order to be able to retrieve first argument again
 void rewind_arg_list(cmd_packet_t* cmd_packet)
 {
-	cmd_packet->cmd_next_arg_p = *cmd_packet->cmd_arg_list;
+	cmd_packet->cmd_next_arg_p = (char *) cmd_packet->cmd_arg_list;
 }
 
 
 
-// Decodes a string from a CSP packet, and returns a cmd-pack struct with the command info  
+// Decodes a string from a CSP packet, and returns a cmd-pack struct with the command info
 int decode_cmd_message(csp_packet_t *  in_csp_packet, cmd_packet_t * out_cmd_packet)
 {
 	uint32_t str_len;
@@ -161,8 +175,8 @@ int decode_cmd_message(csp_packet_t *  in_csp_packet, cmd_packet_t * out_cmd_pac
 	if(str_len > CONF_CMD_ARG_LIST_SIZE) return EXIT_FAILURE;
 	// Copy string with arguments to cmd_packet argument list buffer
 	if(str_len > 0 ) strcpy( out_cmd_packet->cmd_arg_list, in_csp_packet->data+2 );
-	// Point the argument pointer to the first argument in list 
-	out_cmd_packet->cmd_next_arg_p = &out_cmd_packet->cmd_arg_list;
+	// Point the argument pointer to the first argument in list
+	out_cmd_packet->cmd_next_arg_p = (char *) out_cmd_packet->cmd_arg_list;
 	// If  cmd_args_num at corresponding table entry is different to ARGS_NUM_ANNY, then check that the amount of arguments in list match to cmd_args_num
 	if(get_cmd_table_entry(out_cmd_packet->cmd_code)->cmd_args_num != ARGS_NUM_ANNY )
 	{
@@ -180,7 +194,7 @@ cmd_exit_status_t cmd_work(csp_conn_t *conn, cmd_packet_t * cmd_packet)
 	cmd_handle_t * cmd_handle;
 	csp_packet_t * response_packet;
 	// Get command routine handle from command table by the command code
-	cmd_handle = get_cmd_table_entry(cmd_packet->cmd_code);	
+	cmd_handle = get_cmd_table_entry(cmd_packet->cmd_code);
 	// If cmd_packet invalid or command not found, response CMD_UNKNOWN
 	if(cmd_packet == NULL || cmd_handle == NULL)
 	{
@@ -195,7 +209,7 @@ cmd_exit_status_t cmd_work(csp_conn_t *conn, cmd_packet_t * cmd_packet)
 
 // Struct to encapsulate command info
 cmd_packet_t cmd_packet;
-// Process an incoming command, 
+// Process an incoming command,
 // This function is not reentrant, not thread-safe, i.g. process one command at the time
 cmd_exit_status_t command_handler(csp_conn_t *conn, csp_packet_t *in_csp_packet)
 {
@@ -208,12 +222,12 @@ cmd_exit_status_t command_handler(csp_conn_t *conn, csp_packet_t *in_csp_packet)
 	csp_buffer_free(in_csp_packet);
 	// If decode Fails
 	if(decode_result !=EXIT_SUCCESS)
-	{		
+	{
 		// Response with Fail message
 		send_message(conn, in_csp_packet, "CMD_DECODE_FAIL");
 		return CMD_DECODE_FAIL;
 	}
-	// If trigger_type is ON_REAL_TIME, execute immediately			// TODO block cmd_task to avoid a collision 
+	// If trigger_type is ON_REAL_TIME, execute immediately			// TODO block cmd_task to avoid a collision
 	if(cmd_packet.trigger_type==ON_REAL_TIME)
 	{
 		return cmd_work(conn, &cmd_packet);
@@ -237,7 +251,7 @@ cmd_handle_t * get_cmd_table_entry(uint8_t cmd_code)
 	for(i = 0; i< cmd_table_size_v; i ++)
 	{
 		// If command code found, return pointer to it containing handle through dest_handle
-		if(cmd_table_p[i].cmd_code ==  cmd_code ) 
+		if(cmd_table_p[i].cmd_code ==  cmd_code )
 		{
 			// Check the handle has a pointer to a fn
 			if(cmd_table_p[i].cmd_routine_p == NULL) return (cmd_handle_t *) NULL;
@@ -268,18 +282,16 @@ int send_message( csp_conn_t * connection, csp_packet_t * csp_packet, const char
 	// If packet NULL, try to get new one
 	if( csp_packet == NULL ) csp_packet = csp_buffer_get( strlen(message_buff) );
     // Exit Fail if no mem for new packet
-	if( csp_packet == NULL ) return EXIT_FAILURE; 
+	if( csp_packet == NULL ) return EXIT_FAILURE;
 	// Store message in packet
-	strcpy( csp_packet->data, message_buff);  
+	strcpy( csp_packet->data, message_buff);
     // Store message size
     csp_packet->length = strlen(message_buff);
-    // Send message 
-    if(csp_send(connection, csp_packet, 1000) == 0)	
-    { 
+    // Send message
+    if(csp_send(connection, csp_packet, 1000) == 0)
+    {
     	csp_buffer_free(csp_packet);
 		return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
 }
-
-

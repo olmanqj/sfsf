@@ -1,9 +1,23 @@
 /*
 Copyright 2018 olmanqj
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
 #ifndef SFSF_PARAM_H_
 #define SFSF_PARAM_H_
 
@@ -17,10 +31,10 @@ extern "C" {
 /**
  * @file	sfsf_param.h
  * @brief	API for Parameter Service
- 
+
 Parameter Service
 =================
-							
+
 To avoid confusion:
 - Variable: variables from programming language, a storage location with an
  associated name.
@@ -35,35 +49,35 @@ Features Summary
 - Definitions to create the parameter table.
 - Automatically collects parameters with Telemetry option.
 - Automatically stores parameters in persistent memory. (Still not implemented)
-- Parameters protection with read only option. 
+- Parameters protection with read only option.
 
 
 Module Description
------------------							
-The Parameter Service acts as a database for the spacecraft's parameters, 
+-----------------
+The Parameter Service acts as a database for the spacecraft's parameters,
 provides an easy way to set and get the value of any parameter. A parameter
 can be described as a variable that helps model or describe a system, it can
-be for example the pointing direction of the ADCS, or the output voltage of 
+be for example the pointing direction of the ADCS, or the output voltage of
 the EPS, or even if the communication system is on or off.
 
-Implementing the mission specific application using the Parameters Service 
-instead of built-in variables from the platform, facilitates the control and 
-monitoring of the spacecraft, because any parameter value can be modified or 
-retrieved at any time. Parameters can be accessed by a name or by an index, 
-this gives the ability to modify or retrieve the value of a parameter from 
-the ground. 
+Implementing the mission specific application using the Parameters Service
+instead of built-in variables from the platform, facilitates the control and
+monitoring of the spacecraft, because any parameter value can be modified or
+retrieved at any time. Parameters can be accessed by a name or by an index,
+this gives the ability to modify or retrieve the value of a parameter from
+the ground.
 
 The Parameter Table
 -------------------
-Parameters are stored in a table, the "Parameters Table". Each entry of the 
-table is of type param_t, which contains the name, type, size, options and 
-a pointer to the value of the parameter. In other words the Parameters Table 
+Parameters are stored in a table, the "Parameters Table". Each entry of the
+table is of type param_t, which contains the name, type, size, options and
+a pointer to the value of the parameter. In other words the Parameters Table
 is an array of param_t.
 
-There can only be one table and should be created by the user, with the type 
-param_table_t. It should be registered at init with the function 
+There can only be one table and should be created by the user, with the type
+param_table_t. It should be registered at init with the function
 set_param_table(). The table isstatic and it is created at compilation, this
-means new parameters can not be added at run time. Therefore, users should 
+means new parameters can not be added at run time. Therefore, users should
 include in the table, all required parameters during coding. There are two
  ways to add parameters to the table:
 
@@ -75,21 +89,21 @@ its value. This is done by adding a param_t struct to the table, as following:
 
 - When the parameter is an existing variable, the variable can be "parameterized"
 and added to the table. This is done with the macro parameterize(), by adding a
-line as the following to the table: 
+line as the following to the table:
 @code
 {.param_name = "example1", .type = UINT8_PARAM, .size = UINT8_SIZE,	.opts = TELEMETRY|PERSISTENT, parameterize(variable_name) },
 @endcode
 
 As shown in the two last examples, parameters require:
-- A unique name, the max name size is determined by the configuration 
+- A unique name, the max name size is determined by the configuration
  CONF_PARAM_NAME_SIZE.
 - Type: all supported types are enlisted in enum param_type_t.
 - Sze: size can be assigned with the macro sizeof(), or with the values of enum
  param_size_t. For a parameter of type STRING_PARAM the size can be any, it
- should be decided by the user. 
+ should be decided by the user.
 - Options: there are some special options that can be assigned to parameters,
  these are enlisted in enum param_opts_t. Options are not mandatory,
- parameters can have no options. All parameters with option TELEMTRY can be 
+ parameters can have no options. All parameters with option TELEMTRY can be
  collected into a string with the function collect_telemetry_params().
  All parameters with option PERSITENT will be stored in persistent memory. This
  is useful for restoring the configuration after a reboot from OBC. Note that
@@ -99,11 +113,11 @@ As shown in the two last examples, parameters require:
  inhibits the parameter value to be modified throughout the Parameter Service
  API. This option is useful when there are parameters that should not be
  modified from the ground, but retrieved, like a counter, or the output of a
- sensor. 
+ sensor.
 
 An example of a Parameters Table:
 @code
-// Variables to be parameterized 
+// Variables to be parameterized
 uint32_t	variable_name;
 float		variable2_name;
 // Parameters Table
@@ -129,24 +143,24 @@ Whit a Parameter Table populated and registered, we can retrieve
 and modify the value of parameters. You may not access the param_t
 structures from table directly. Use the a Parameter Handle instead,
 the typedef param_handle_t, which is a pointer to a table entry. So
-once you have a handle pointing to a param, the access to the value 
+once you have a handle pointing to a param, the access to the value
 is in immediate, there is no need to look-up through the table for
-the parameter. There are two ways to obtain a handle, by the name 
-of the parameter, or by the index on the table. 
+the parameter. There are two ways to obtain a handle, by the name
+of the parameter, or by the index on the table.
 
 The easiest, by the name, with the function get_param_handle_by_name().
-This functions scans the table for a parameter with the name. If the 
-parameter is accessed very frequently, is not efficient. 
+This functions scans the table for a parameter with the name. If the
+parameter is accessed very frequently, is not efficient.
 
 @b Example:
 @code
 param_handle_t example1_h = get_param_handle_by_name("example1");
-@endcode 
+@endcode
 
-The other way is by the index in table, using the function 
+The other way is by the index in table, using the function
 get_param_handle_by_index(). This functions is way more efficient
 that the previous one, because there is not need to scan the table,
-the access is directly, but you need to keep track of the indexes 
+the access is directly, but you need to keep track of the indexes
 in table.
 
 @b Example:
@@ -155,8 +169,8 @@ in table.
 param_handle_t example1_h = get_param_handle_by_index(EXAMPLE1_INDEX);
 @endcode
 
-Once with the handle of a param, in other words a pointer to it, the 
-acces to its value can be done with two functions: get_param_val() 
+Once with the handle of a param, in other words a pointer to it, the
+acces to its value can be done with two functions: get_param_val()
 and set_param_val().
 
 To retreive the value of a parameter use get_param_val().
@@ -178,7 +192,7 @@ set_param_val(example1_h, (void*)&example1 );
 @endcode
 
 Also you can use the macros get_param() and set_param(),
-which require less code. 
+which require less code.
 
 @b Example:
 @code
@@ -191,10 +205,10 @@ get_param( example1_h, example1 );
 @endcode
 
 
-The true advantage from the Param Service is the ability to 
+The true advantage from the Param Service is the ability to
 access values by a string, the name. This way the ground segment
 can modify or retrieve variables in the spacecraft by knowing the
-name. Incoming and outgoing messages from ground may contain 
+name. Incoming and outgoing messages from ground may contain
 the value of parameters as strings, therefore you can also
 use the functions str_to_param() and param_to_str().
 
@@ -207,7 +221,7 @@ str_to_param(example_handle, "example string");
 @endcode
 
 
-To retrieve the value of a parameter as a string use 
+To retrieve the value of a parameter as a string use
 param_to_str().
 
 @b Example:
@@ -220,7 +234,7 @@ param_to_str(example_handle, buffer, 20);
 
 
 
-/** 
+/**
  * @enum	param_type_t
  * @brief	Parameter Types
  *
@@ -241,12 +255,12 @@ typedef enum
 	STRING_PARAM
 } param_type_t;
 
-/**  
+/**
  * @enum	param_size_t
  * @brief	Parameter Sizes
  *
  * Macros for assigning the size in Parameters Table, note that STRING_PARAM
- * can have any size, is decision from user to assign the size. 
+ * can have any size, is decision from user to assign the size.
 */
 typedef enum
 {
@@ -263,7 +277,7 @@ typedef enum
 	// String Size should be decided by user.
 } param_size_t;
 
-/** 
+/**
  * @enum	param_opts_t
  * @brief	Parameter Options
  * @note	READ_ONLY is only applicable for parameterized variables.
@@ -277,7 +291,7 @@ typedef enum
 	READ_ONLY	= 0b00000100		/**< Prohibited to write with param_service functions, only applicable for parameterized variables. */
 } param_opts_t;
 
-/** 
+/**
  * @struct	param_t
  * @brief	Parameter struct
  *
@@ -286,7 +300,7 @@ typedef enum
  * @see param_table_t
  *
  * Do not handle this struct directly, use instead param_handle_t type
- * and the API defined functions. 
+ * and the API defined functions.
  * @see param_handle_t
 */
 typedef struct
@@ -298,7 +312,7 @@ typedef struct
 	void* value;							/**< Pointer to param space where value is stored. */
 }param_t;
 
-/** 
+/**
  * @typedef	param_table_t
  * @brief	Parameters Table Type
  *
@@ -307,7 +321,7 @@ typedef struct
  *
  * **Example**:
  * @code
- * // Variables to be parameterized 
+ * // Variables to be parameterized
  * uint32_t	variable_name;
  * float		variable2_name;
  * // Parameters Table
@@ -323,7 +337,7 @@ typedef struct
 */
 typedef param_t param_table_t[];
 
-/** 
+/**
  * @typedef	param_handle_t
  * @brief	Parameter Handle Type
  *
@@ -333,7 +347,7 @@ typedef param_t param_table_t[];
 */
 typedef param_t* param_handle_t;
 
-/** 
+/**
  * @typedef	param_index_t
  * @brief	Index to a parameter Type
  *
@@ -354,7 +368,7 @@ typedef int16_t param_index_t;
  * @note	Storage Service functions should be ported. See simle_port.h.
  * @see		sfsf_port.h
  * @param 	file_name 		Name of file where parameters are stored in persistent memory
- * @return	-1 if error, 0 if OK 
+ * @return	-1 if error, 0 if OK
  */
 int load_param_table(char* file_name);
 
@@ -363,7 +377,7 @@ int load_param_table(char* file_name);
  * @brief	Init the task that stores parameters in persistent memory.
  * @note	Storage Service functions should be ported. See simle_port.h.
  * @see		sfsf_port.h
- * @return	-1 if error, 0 if OK 
+ * @return	-1 if error, 0 if OK
  */
 int init_param_persistence(void);
 
@@ -373,8 +387,8 @@ int init_param_persistence(void);
  * Call this function during initialization, in init_services() function
  * at init_functions.c.
  * @param	param_table				Pointer to the param table
- * @param	param_table_size		Num of entries of param_table 
- * @return	-1 if error, 0 if OK 
+ * @param	param_table_size		Num of entries of param_table
+ * @return	-1 if error, 0 if OK
  */
 int set_param_table(param_table_t* param_table, uint16_t param_table_size);
 
@@ -383,7 +397,7 @@ int set_param_table(param_table_t* param_table, uint16_t param_table_size);
  * @brief Macro to parameterize a variable into the Parameters Table.
  *
  * Use this macro to create parameters into the Parameters Table using a variable.
- * Variable should be visible in the scope where the Table is declared, this can be 
+ * Variable should be visible in the scope where the Table is declared, this can be
  * done with the "extern" keyword.
  *
  * **Example:**
@@ -408,14 +422,14 @@ param_handle_t get_param_handle_by_name(const char * name);
 /**
  * @brief	Get the index in table of a Parameter by the name
  * @param	name					Name of the parameter
- * @return	index to param if OK, -1 if error (not found) 
+ * @return	index to param if OK, -1 if error (not found)
  */
 param_index_t get_param_index(const char * name);
 
 /**
  * @brief	Get the handle of a Parameter by the index
  * @param	index					Index in table of the parameter
- * @return	handle to param if OK, NULL if error (not found) 
+ * @return	handle to param if OK, NULL if error (not found)
  */
 param_handle_t get_param_handle_by_index(param_index_t index);
 
@@ -429,7 +443,7 @@ param_handle_t get_param_handle_by_index(param_index_t index);
 int set_param_val(param_handle_t param_h, void * in_p);
 
 /**
- * @brief	Get the value of a Parameter 
+ * @brief	Get the value of a Parameter
  * @param	param_h				Handle of the parameter
  * @param	out_p 				Void pointer to buffer to store param value, should be enough to store value
  * @return	0 if OK, -1 if error or Param no exists, or buffer too small
@@ -437,7 +451,7 @@ int set_param_val(param_handle_t param_h, void * in_p);
 int get_param_val(param_handle_t param_h, void * out_p);
 
 /**
- * @brief	Macro for easing setting the value of a Parameters 
+ * @brief	Macro for easing setting the value of a Parameters
  *
  * @code
  * //Example:
@@ -452,7 +466,7 @@ int get_param_val(param_handle_t param_h, void * out_p);
 #define set_param(handle, type, value)	{ type aux_var = value; set_param_val(handle, (void*)&aux_var);}
 
 /**
- * @brief	Macro for easing getting the value of a Parameters 
+ * @brief	Macro for easing getting the value of a Parameters
  *
  * @code
  * Example:
@@ -460,7 +474,7 @@ int get_param_val(param_handle_t param_h, void * out_p);
  * uint16_t other_var;
  * get_param( example_handle_uint16, other_var );				// get value with macro
  * @endcode
- * 
+ *
  * @param	handle				Handle of the parameter
  * @param	dest_var			Destination variable where value will be stored
  */
@@ -469,9 +483,9 @@ int get_param_val(param_handle_t param_h, void * out_p);
 /**
  * @brief	Store the value of a param as string in a buffer
  * @param	param_handle		Handle of the param
- * @param	out_buff			Destination buffer	
+ * @param	out_buff			Destination buffer
  * @param	buff_size 			Size of the destination buffer
- * @return	0 if OK, -1 if error 
+ * @return	0 if OK, -1 if error
  */
 int param_to_str(param_handle_t param_handle, char* out_buff, int buff_size);
 
@@ -481,7 +495,7 @@ int param_to_str(param_handle_t param_handle, char* out_buff, int buff_size);
  * Convert the value of a string to the type of the param, and store it in the param value space
  * @param	param_handle		Handle of the param
  * @param	in_buff				Buffer with the value as string, to be assigned to the param
- * @return	0 if OK, -1 if error 
+ * @return	0 if OK, -1 if error
  */
 int str_to_param(param_handle_t param_handle, char* in_buff);
 
@@ -494,12 +508,12 @@ uint16_t get_table_size(void);
 /**
  * @brief	Collect all params with TEMELETRY
  *
- * Collects all params with TEMELETRY option and store the value with a tag 
+ * Collects all params with TEMELETRY option and store the value with a tag
  * into dest_buff, if buff is not big enough, not all params will be collected.
  * Format: "TAG:value,TAG:value,TAG:value"
  * Example: "A:123,B:-3,C:0.001234"
- * Where "TAG" is a incremental alphabetical character (A,B,C,...,AA,AB,...) 
- * and "value" is the value of the corresponding param. 
+ * Where "TAG" is a incremental alphabetical character (A,B,C,...,AA,AB,...)
+ * and "value" is the value of the corresponding param.
  * For getting the reference between TAG and param see collect_telemtry_header()
  * @see collect_telemtry_header
  * @param	dest_buff			Buffer where telemetry data will be stored
@@ -509,13 +523,13 @@ void collect_telemetry_params(char * dest_buff, size_t buff_size);
 
 /**
  * @brief	Collect the references between TAG and params with TELEMETRY
- * 
+ *
  * Collect the references between TAG and params with TELEMETRY option into
  * dest_buff, if buff is not big enough, not all params will be collected.
  * Format: "TAG:param_name,TAG:param_name,TAG:param_name"
  * Example: "A:reset_cause,B:temperature,C:gps_lat"
- * Where "TAG" is a incremental alphabetical character (A,B,C,...,AA,AB,...) 
- * and "param_name" is the name of the param assigned in the params table. 
+ * Where "TAG" is a incremental alphabetical character (A,B,C,...,AA,AB,...)
+ * and "param_name" is the name of the param assigned in the params table.
  *
  * @param	dest_buff			Buffer where telemetry data will be stored
  * @param	buff_size			Size of dest_buff

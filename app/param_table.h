@@ -19,9 +19,9 @@ This is a template for the  Param Table.
 #ifndef PARAM_TABLE_H_
 #define PARAM_TABLE_H_
 
-#include "sfsf.h"
-#include "sfsf_param.h"
-#include "sfsf_hk.h"
+#include <sfsf.h>
+#include <sfsf_param.h>
+#include <sfsf_hk.h>
 
 /**
  * @brief	Parameter Table	

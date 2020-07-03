@@ -1,16 +1,30 @@
 /*
 Copyright 2018 olmanqj
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */ 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
 
 /**
  * @brief	Command Routines
  * @example cmd_routines.c
  * Command Routines Example
 
- 
+
 Command Routines
 ================
 This is an example of how to create a Command Routines.
@@ -24,19 +38,19 @@ This is an example of how to create a Command Routines.
 #include <string.h>
 
 // CSP Includes
-#include <csp.h>
-#include <csp_system.h>
-#include <csp_thread.h>
-#include <csp_queue.h>
+#include <csp/csp.h>
+#include <csp/arch/csp_system.h>
+#include <csp/arch/csp_thread.h>
+#include <csp/arch/csp_queue.h>
 
 // Framework Services Includes
-#include "sfsf.h"
-#include "sfsf_param.h"
-#include "sfsf_cmd.h"
-#include "sfsf_log.h"
+#include <sfsf.h>
+#include <sfsf_param.h>
+#include <sfsf_cmd.h>
+#include <sfsf_log.h>
 
 // Mission config
-#include "mission_config.h"
+#include <mission_config.h>
 
 
 // DEFINE_CMD_ROUTINE receives (csp_conn_t *conn, cmd_packet_t * cmd_packet)
@@ -119,7 +133,7 @@ DEFINE_CMD_ROUTINE(cmd_set_param)
 	while( (arg_size=get_next_arg(cmd_packet, param_name))!=0 )
 	{
 		// Get another Argument, set_command need two Arguments (param name and the value)
-		if(get_next_arg(cmd_packet, &arg_value_buff)==0 )
+		if(get_next_arg(cmd_packet, arg_value_buff)==0 )
 		{
 			// If not second argument, respond with error
 			bzero(arg_value_buff, sizeof(arg_value_buff));
@@ -180,12 +194,9 @@ DEFINE_CMD_ROUTINE(cmd_reboot_obc)
 {
 	log_print("Rebooting OBC by command request");
 	// TODO check if first argument is the password
-	
-	// Call CSP reboot 
+
+	// Call CSP reboot
 	csp_sys_reboot();
 	// IF reboot should never reach here
 	return CMD_SEND_FAIL;
 }
-
-
-

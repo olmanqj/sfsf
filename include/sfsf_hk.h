@@ -1,9 +1,23 @@
 /*
 Copyright 2018 olmanqj
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */ 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
 #ifndef SFSF_HK_H_
 #define SFSF_HK_H_
 
@@ -17,8 +31,8 @@ extern "C" {
 /**
  * @file	sfsf_hk.h
  * @brief	API for Housekeeping Service
- 
- 
+
+
 Housekeeping Service
 ====================
 
@@ -30,8 +44,8 @@ Features Summary
 Module Description
 ------------------
 The Housekeeping (HK) Service is in charge of providing the ground segment with
-telemetry data about the state and health of the spacecraft.This service is able 
-to automatically collect, store and transmit telemetry data. Storing telemetry 
+telemetry data about the state and health of the spacecraft.This service is able
+to automatically collect, store and transmit telemetry data. Storing telemetry
 data may be of interest for the mission, if it is required to know the state of
 the spacecraft even during the section of the orbit without a communication link
 with ground.
@@ -55,7 +69,7 @@ with ground.
  *	 parameterize(  "beacon_period",	UINT32_PARAM,	UINT32_SIZE,	PERSISTENT,						beacon_period ),
  *	 ...
  * }
- * @endcode 
+ * @endcode
  *
  */
 ///@{
@@ -82,13 +96,13 @@ typedef void (*telemetry_collector_t) (char * dest_buf, size_t buf_len);
 /**
  * @brief Init HK task, collects, stores and broadcasts telemetry data periodically.
  *
- * @note When the Flight Software starts Beacons wont be stored neither broadcasted, this for 
+ * @note When the Flight Software starts Beacons wont be stored neither broadcasted, this for
  * avoid radio transmissions during deployment of the satellite.  App should start Beacons
  * transmission and storage with resume_hk_broadcast() and resume_hk_storage().
- * @note For the HK service to collect Telemetry Data automatically a collector function 
+ * @note For the HK service to collect Telemetry Data automatically a collector function
  * should by set during initialization with set_telemetry_collector().
- * 
- * @return	-1 if error , 0 if OK 
+ *
+ * @return	-1 if error , 0 if OK
  */
 int init_hk_service(void);
 
@@ -99,9 +113,9 @@ int init_hk_service(void);
  */
 int send_beacon(csp_packet_t * beacon_packet);
 
-/** 
+/**
  * @brief	Set the Telemetry Collector function
- * @note	collect_telemetry_params() fomr Param Service is situable for this. 
+ * @note	collect_telemetry_params() fomr Param Service is situable for this.
  * @see		sfsf_param.h
  * @param	telemetry_collector_p		Function that collects telemetry data into dest_buf
  */
@@ -129,13 +143,13 @@ void stop_hk_storage(void);
 
 /**
  * @brief	Returns the count of Beacons sent
- * @return	Count of Beacons sent 
+ * @return	Count of Beacons sent
  */
 uint32_t get_beacon_count(void);
 
 /**
  * @brief	Get HK Handle
- * @return	csp_thread_handle_t 
+ * @return	csp_thread_handle_t
  */
 csp_thread_handle_t get_hk_task_handle(void);
 

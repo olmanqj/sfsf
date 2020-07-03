@@ -19,8 +19,8 @@ Command Table Template.
 */
 
 // Framework Services Includes
-#include "sfsf.h"
-#include "sfsf_cmd.h"
+#include <sfsf.h>
+#include <sfsf_cmd.h>
 
 
 #ifndef CMD_TABLE_H_

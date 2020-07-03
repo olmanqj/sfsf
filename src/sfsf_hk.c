@@ -1,23 +1,38 @@
 /*
 Copyright 2018 olmanqj
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */ 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 
 // CSP Includes
-#include <csp.h>
-#include <csp_thread.h>
-#include <csp_queue.h>
-#include <csp_semaphore.h>
+#include <csp/csp.h>
+#include <csp/arch/csp_thread.h>
+#include <csp/arch/csp_queue.h>
+#include <csp/arch/csp_semaphore.h>
 
 // Framework Includes
-#include "sfsf.h"
-#include "sfsf_debug.h"
-#include "sfsf_storage.h"
-#include "sfsf_hk.h"
+#include <sfsf.h>
+#include <sfsf_debug.h>
+#include <sfsf_storage.h>
+#include <sfsf_hk.h>
 
 
 // Frequency between beacons
@@ -51,21 +66,21 @@ FILE *beacon_fd;				// beacon file Descritor
 CSP_DEFINE_TASK( hk_service_task )
 {
 	while(1)
-	{	
-		// Sleep for a while 
-		csp_sleep_ms(beacon_period); 
+	{
+		// Sleep for a while
+		csp_sleep_ms(beacon_period);
 		// Get a new packet
 		beacon_packet = csp_buffer_get( CONF_CSP_BUFF_SIZE );
-		if( beacon_packet == NULL )	continue;	
+		if( beacon_packet == NULL )	continue;
 		// Clear packet
 		bzero(beacon_packet->data,  CONF_CSP_BUFF_SIZE );
 		// Collect telemetry data automatically with the telemetry_collector function, should be assigned at init
 		if (telemetry_collector_fun != NULL) telemetry_collector_fun(beacon_packet->data,  CONF_CSP_BUFF_SIZE );
-		beacon_packet->length = strlen( (char *) beacon_packet->data); 
+		beacon_packet->length = strlen( (char *) beacon_packet->data);
 		// Store Beacon in file if not blocked
 		if(beacon_storage_padlock == BEACON_UNBLOCKED)
 		{
-			// If debug enabled, print storage action 
+			// If debug enabled, print storage action
 			#if	CONF_HK_DEBUG == ENABLE
 			print_debug("HK>\tStoring Beacon\n");
 			#endif
@@ -73,7 +88,7 @@ CSP_DEFINE_TASK( hk_service_task )
 			if (!beacon_fd) beacon_fd = fopen(CONF_HK_BEACONS_FILE, "wt"); // Create if not opened
 			// if file opened, write Bacon in file
 			if (beacon_fd)
-			{ 
+			{
 				fprintf(beacon_fd, "%s\n",  beacon_packet->data );	// Write beacon in file
 				fclose(beacon_fd);		// Close file
 			}
@@ -88,19 +103,19 @@ CSP_DEFINE_TASK( hk_service_task )
 			print_debug("\n");
 			#endif
 			// Broadcast beacon
-			send_beacon(beacon_packet);		
+			send_beacon(beacon_packet);
 			// increment beacon counter
 			beacon_counter++;
 		}
 
-		
-		// If the packet was not used, should be freed manually 
-		else csp_buffer_free(beacon_packet);
-		
-		
 
-	} 
-	return CSP_TASK_RETURN;	
+		// If the packet was not used, should be freed manually
+		else csp_buffer_free(beacon_packet);
+
+
+
+	}
+	return CSP_TASK_RETURN;
 }
 
 
@@ -140,13 +155,13 @@ int send_beacon(csp_packet_t * beacon_packet)
 	                CSP_O_NONE,                 // @param opts CSP_O_x
 	                beacon_packet,              // @param packet pointer to packet
 	                200							// timeout timeout used by interfaces with blocking send
-	                ) < 0) 
+	                ) < 0)
 	{
 		// TODO Handle error
 		csp_buffer_free(beacon_packet);
 	    return EXIT_FAILURE;
 	}
-	return EXIT_SUCCESS; 
+	return EXIT_SUCCESS;
 }
 
 
