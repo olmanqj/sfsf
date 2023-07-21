@@ -56,5 +56,5 @@ dkms.conf
 build/
 
 # Waf files
-.waf-*/
-.waf-*
+.waf*/
+.lock-waf*
