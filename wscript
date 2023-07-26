@@ -34,7 +34,7 @@ APPNAME = 'sfsf'
 VERSION = '0.1'
 
 
-libcsp_path='libcsp'
+libcsp_path='extern/libcsp'
 
 
 def options(ctx):
@@ -81,7 +81,7 @@ def configure(ctx):
 def build(ctx):
 
     # Build libcsp
-    ctx.recurse('libcsp')
+    ctx.recurse(libcsp_path)
 
     ctx(export_includes=ctx.env.INCLUDES_SFSF, name='sfsf_h')
 
