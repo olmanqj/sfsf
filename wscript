@@ -35,7 +35,6 @@ VERSION = '0.1'
 
 
 libcsp_path='libcsp'
-iondb_path='iondb'
 
 
 def options(ctx):
@@ -98,6 +97,10 @@ def build(ctx):
                     target='ground_station',
                     lib=ctx.env.LIBS,
                     use='csp')
+
+def test(ctx):
+    print("Test...")
+
 
 def dist(ctx):
     ctx.excl = 'build/* **/.* **/*.pyc **/*.o **/*~ *.tar.gz'
