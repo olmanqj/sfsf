@@ -32,7 +32,8 @@ Application task Template.
 #include <sfsf_time.h>
 #include <sfsf_storage.h>
 
-
+// Mission config
+#include <mission_config.h>
 
 // CSP structs for app
 csp_socket_t *  server_socket;
